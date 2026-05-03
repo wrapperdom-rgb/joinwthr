@@ -36,6 +36,7 @@ const App = () => (
               <Route path="/messages" element={<Messages />} />
               <Route path="/messages/:otherId" element={<Messages />} />
               <Route path="/u/:handle" element={<Profile />} />
+              <Route path="/admin" element={<Admin />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
