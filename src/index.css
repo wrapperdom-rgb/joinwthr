@@ -11,83 +11,67 @@
 
 @layer base {
   :root {
-    --background: 0 0% 2%;
-    --foreground: 0 0% 88%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 96%;
 
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 88%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 3%;
-    --popover-foreground: 0 0% 88%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 0 0% 92%;
-    --primary-foreground: 0 0% 2%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 4%;
 
-    --secondary: 0 0% 7%;
-    --secondary-foreground: 0 0% 88%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 96%;
 
-    --muted: 0 0% 7%;
-    --muted-foreground: 0 0% 38%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 55%;
 
-    --accent: 0 0% 9%;
-    --accent-foreground: 0 0% 88%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 96%;
 
-    --destructive: 0 75% 35%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 10%;
-    --input: 0 0% 9%;
-    --ring: 0 0% 60%;
+    --border: 0 0% 14%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 80%;
 
-    --radius: 0;
+    --radius: 0.125rem;
 
-    --hairline: 0 0% 12%;
-    --elevated: 0 0% 5%;
-    --blood: 0 70% 30%;
+    --hairline: 0 0% 18%;
+    --elevated: 0 0% 8%;
   }
 }
 
 @layer base {
-  * { @apply border-border; }
+  * {
+    @apply border-border;
+  }
   html, body, #root {
     @apply bg-background text-foreground;
     min-height: 100vh;
   }
   body {
-    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-    font-feature-settings: "ss01";
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
-    letter-spacing: 0;
-    background-color: hsl(var(--background));
-    background-image:
-      radial-gradient(ellipse at 50% 0%, hsla(0, 0%, 8%, 1) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 100%, hsla(0, 60%, 6%, 0.6) 0%, transparent 50%);
+    letter-spacing: -0.01em;
   }
   h1, h2, h3, h4 {
-    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-    letter-spacing: -0.02em;
-    font-weight: 400;
-    font-style: italic;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.04em;
+    font-weight: 500;
   }
-  ::selection { background: hsl(var(--blood)); color: hsl(var(--foreground)); }
+  ::selection { background: hsl(var(--foreground)); color: hsl(var(--background)); }
 }
 
 @layer utilities {
   .font-script { font-family: 'Shadows Into Light', cursive; letter-spacing: 0; }
-  .font-display {
-    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-    font-weight: 300;
-    font-style: italic;
-    letter-spacing: -0.03em;
-  }
-  .font-mono-mini {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    font-weight: 400;
-  }
-  .font-sans-ui { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+  .font-display { font-family: 'Inter', sans-serif; letter-spacing: -0.05em; font-weight: 500; }
+  .font-mono-mini { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; }
 
   .hairline { border-color: hsl(var(--hairline)); }
   .border-hairline { border: 1px solid hsl(var(--hairline)); }
@@ -97,49 +81,9 @@
     content: "";
     position: fixed; inset: 0;
     pointer-events: none;
-    opacity: 0.09;
+    opacity: 0.04;
     z-index: 1;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.7'/></svg>");
-    mix-blend-mode: overlay;
-  }
-
-  .vignette::after {
-    content: "";
-    position: fixed; inset: 0;
-    pointer-events: none;
-    z-index: 2;
-    background: radial-gradient(ellipse at center, transparent 40%, hsla(0,0%,0%,0.85) 100%);
-  }
-
-  .scanlines::before {
-    content: "";
-    position: fixed; inset: 0;
-    pointer-events: none; z-index: 3;
-    background-image: repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 2px,
-      hsla(0,0%,100%,0.012) 2px,
-      hsla(0,0%,100%,0.012) 3px
-    );
-  }
-
-  .glitch-text {
-    text-shadow:
-      1px 0 0 hsla(0, 70%, 40%, 0.4),
-      -1px 0 0 hsla(180, 50%, 40%, 0.25);
-  }
-
-  .flicker { animation: flicker 5s infinite steps(2); }
-  @keyframes flicker {
-    0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
-    20%, 24%, 55% { opacity: 0.6; }
-  }
-
-  .breathe { animation: breathe 8s ease-in-out infinite; }
-  @keyframes breathe {
-    0%, 100% { opacity: 0.55; }
-    50% { opacity: 1; }
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
   }
 
   .marquee-fade {
