@@ -13,6 +13,7 @@ import Opportunities from "./pages/Opportunities";
 import Discover from "./pages/Discover";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/messages" element={<Messages />} />
               <Route path="/messages/:otherId" element={<Messages />} />
               <Route path="/u/:handle" element={<Profile />} />
+              <Route path="/admin" element={<Admin />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
