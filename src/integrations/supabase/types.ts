@@ -193,6 +193,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banned: boolean
           bio: string | null
           building: string | null
           created_at: string
@@ -205,6 +206,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          banned?: boolean
           bio?: string | null
           building?: string | null
           created_at?: string
@@ -217,6 +219,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          banned?: boolean
           bio?: string | null
           building?: string | null
           created_at?: string
@@ -262,6 +265,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_banned: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
