@@ -10,7 +10,7 @@ const nav = [
 ];
 
 export default function Shell() {
-  const { user, loading, profile, signOut } = useAuth();
+  const { user, loading, profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
