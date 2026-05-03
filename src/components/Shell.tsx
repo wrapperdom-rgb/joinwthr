@@ -36,6 +36,12 @@ export default function Shell() {
                 {n.label}
               </NavLink>
             ))}
+            {isAdmin && (
+              <NavLink to="/admin"
+                className={({isActive}) => `font-mono-mini transition-colors ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                Admin
+              </NavLink>
+            )}
           </nav>
           <div className="flex items-center gap-4">
             <Link to={`/u/${profile?.handle ?? ''}`} className="font-mono-mini text-muted-foreground hover:text-foreground">@{profile?.handle}</Link>
