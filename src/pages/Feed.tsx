@@ -19,7 +19,7 @@ export default function Feed() {
   const load = async () => {
     const { data: rows } = await supabase
       .from("posts")
-      .select("id, content, created_at, author_id, profiles!posts_author_id_fkey(handle, name)")
+      .select("id, content, created_at, author_id, profiles!posts_author_profile_fk(handle, name)")
       .order("created_at", { ascending: false })
       .limit(50);
     if (!rows) return;

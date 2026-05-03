@@ -21,7 +21,7 @@ export default function Opportunities() {
   const load = async () => {
     const { data } = await supabase
       .from("opportunities")
-      .select("*, profiles!opportunities_author_id_fkey(handle, name)")
+      .select("*, profiles!opportunities_author_profile_fk(handle, name)")
       .order("created_at", { ascending: false });
     setItems((data as any) ?? []);
   };
