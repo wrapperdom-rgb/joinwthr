@@ -30,11 +30,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadProfile = async (uid: string) => {
     const { data } = await supabase.from("profiles").select("*").eq("id", uid).maybeSingle();
     setProfile(data as Profile | null);
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+    setIsAdmin(!!roles?.some((r: any) => r.role === "admin"));
   };
 
   useEffect(() => {
@@ -45,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setTimeout(() => loadProfile(sess.user.id), 0);
       } else {
         setProfile(null);
+        setIsAdmin(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session: sess } }) => {
@@ -59,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider
       value={{
-        user, session, profile, loading,
+        user, session, profile, loading, isAdmin,
         refreshProfile: async () => { if (user) await loadProfile(user.id); },
         signOut: async () => { await supabase.auth.signOut(); },
       }}
