@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
 import Landing from "./pages/Landing";
 import AuthPage from "./pages/Auth";
+import RequestAccess from "./pages/RequestAccess";
 import Onboarding from "./pages/Onboarding";
 import Shell from "./components/Shell";
 import Feed from "./pages/Feed";
@@ -28,6 +29,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/request-access" element={<RequestAccess />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route element={<Shell />}>
               <Route path="/feed" element={<Feed />} />

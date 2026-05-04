@@ -4,11 +4,12 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Tab = "users" | "posts" | "opportunities" | "messages" | "invites" | "roles";
+type Tab = "requests" | "users" | "posts" | "opportunities" | "messages" | "invites" | "roles";
 
-const TABS: Tab[] = ["users", "posts", "opportunities", "messages", "invites", "roles"];
+const TABS: Tab[] = ["requests", "users", "posts", "opportunities", "messages", "invites", "roles"];
 
 const TABLE_MAP: Record<Tab, string> = {
+  requests: "access_requests",
   users: "profiles",
   posts: "posts",
   opportunities: "opportunities",
@@ -20,7 +21,7 @@ const TABLE_MAP: Record<Tab, string> = {
 export default function Admin() {
   const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("users");
+  const [tab, setTab] = useState<Tab>("requests");
   const [rows, setRows] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState("");
@@ -62,6 +63,9 @@ export default function Admin() {
     }
     if (tab === "roles" && filter !== "all") {
       out = out.filter(r => r.role === filter);
+    }
+    if (tab === "requests" && filter !== "all") {
+      out = out.filter(r => r.status === filter);
     }
     // free-text search across all string fields
     const q = query.trim().toLowerCase();
@@ -122,11 +126,40 @@ export default function Admin() {
     load();
   };
 
+  const approveRequest = async (req: any) => {
+    const code = prompt("Invite code to issue:", `WTHR-${Math.random().toString(36).slice(2, 6).toUpperCase()}`);
+    if (!code) return;
+    const { error: e1 } = await (supabase.from("invite_codes") as any).insert({ code, created_by: user!.id });
+    if (e1) return toast.error(e1.message);
+    const { error: e2 } = await (supabase.from("access_requests") as any)
+      .update({ status: "approved", notes: `invite: ${code}`, reviewed_at: new Date().toISOString(), reviewed_by: user!.id })
+      .eq("id", req.id);
+    if (e2) return toast.error(e2.message);
+    toast.success(`Approved. Send "${code}" to ${req.email}`);
+    load();
+  };
+
+  const rejectRequest = async (req: any) => {
+    if (!confirm(`Reject request from ${req.email}?`)) return;
+    const { error } = await (supabase.from("access_requests") as any)
+      .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: user!.id })
+      .eq("id", req.id);
+    if (error) return toast.error(error.message);
+    toast.success("Rejected");
+    load();
+  };
+
   if (loading || !isAdmin) {
     return <div className="text-muted-foreground font-mono-mini">checking access…</div>;
   }
 
   const filterOptions: { value: string; label: string }[] = (() => {
+    if (tab === "requests") return [
+      { value: "all", label: "all" },
+      { value: "pending", label: "pending" },
+      { value: "approved", label: "approved" },
+      { value: "rejected", label: "rejected" },
+    ];
     if (tab === "users") return [{ value: "all", label: "all" }, { value: "active", label: "active" }, { value: "banned", label: "banned" }];
     if (tab === "opportunities") {
       const kinds = Array.from(new Set(rows.map(r => r.kind).filter(Boolean)));
@@ -221,7 +254,17 @@ export default function Admin() {
                         {r.banned ? "unban" : "ban"}
                       </button>
                     )}
-                    {tab === "invites" ? (
+                    {tab === "requests" ? (
+                      <>
+                        {r.status === "pending" && (
+                          <>
+                            <button onClick={() => approveRequest(r)} className="font-mono-mini hover:underline">approve</button>
+                            <button onClick={() => rejectRequest(r)} className="font-mono-mini text-destructive hover:underline">reject</button>
+                          </>
+                        )}
+                        <button onClick={() => del("access_requests", { id: r.id })} className="font-mono-mini text-destructive hover:underline">delete</button>
+                      </>
+                    ) : tab === "invites" ? (
                       <button onClick={() => del("invite_codes", { code: r.code })} className="font-mono-mini text-destructive hover:underline">delete</button>
                     ) : tab === "messages" ? (
                       <button onClick={() => del("messages", { id: r.id })} className="font-mono-mini text-destructive hover:underline">delete</button>
