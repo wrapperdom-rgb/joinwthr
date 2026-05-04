@@ -69,6 +69,7 @@ export type Database = {
           content: string | null
           created_at: string
           error: string | null
+          group_id: string | null
           id: string
           success: boolean
           target_id: string | null
@@ -79,6 +80,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           error?: string | null
+          group_id?: string | null
           id?: string
           success?: boolean
           target_id?: string | null
@@ -89,9 +91,210 @@ export type Database = {
           content?: string | null
           created_at?: string
           error?: string | null
+          group_id?: string | null
           id?: string
           success?: boolean
           target_id?: string | null
+        }
+        Relationships: []
+      }
+      bot_settings: {
+        Row: {
+          allow_group_posts: boolean
+          allow_self_reply: boolean
+          enabled: boolean
+          group_post_chance: number
+          id: number
+          max_bots_per_tick: number
+          max_posts_per_day: number
+          self_reply_chance: number
+          tick_minutes: number
+          updated_at: string
+          weight_like: number
+          weight_post: number
+          weight_reply: number
+        }
+        Insert: {
+          allow_group_posts?: boolean
+          allow_self_reply?: boolean
+          enabled?: boolean
+          group_post_chance?: number
+          id?: number
+          max_bots_per_tick?: number
+          max_posts_per_day?: number
+          self_reply_chance?: number
+          tick_minutes?: number
+          updated_at?: string
+          weight_like?: number
+          weight_post?: number
+          weight_reply?: number
+        }
+        Update: {
+          allow_group_posts?: boolean
+          allow_self_reply?: boolean
+          enabled?: boolean
+          group_post_chance?: number
+          id?: number
+          max_bots_per_tick?: number
+          max_posts_per_day?: number
+          self_reply_chance?: number
+          tick_minutes?: number
+          updated_at?: string
+          weight_like?: number
+          weight_post?: number
+          weight_reply?: number
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          created_at: string
+          group_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "group_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_post_replies: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_post_replies_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "group_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_posts: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          group_id: string
+          id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          group_id: string
+          id?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          bots_allowed: boolean
+          created_at: string
+          description: string
+          id: string
+          name: string
+          owner_id: string
+          slug: string
+          topic: string
+        }
+        Insert: {
+          bots_allowed?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          owner_id: string
+          slug: string
+          topic?: string
+        }
+        Update: {
+          bots_allowed?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          slug?: string
+          topic?: string
         }
         Relationships: []
       }
@@ -353,6 +556,11 @@ export type Database = {
         Returns: boolean
       }
       is_banned: { Args: { _uid: string }; Returns: boolean }
+      is_group_admin: { Args: { _gid: string; _uid: string }; Returns: boolean }
+      is_group_member: {
+        Args: { _gid: string; _uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"
