@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     for (const bot of BOTS) {
       // skip if profile exists
       const { data: existing } = await admin.from("profiles").select("id").eq("handle", bot.handle).maybeSingle();
-      if (existing) { results.push({ handle: bot.handle, status: "exists" }); continue; }
+      if (existing) { results.push({ handle: bot.handle, status: "exists", id: existing.id }); continue; }
 
       const email = `${bot.handle}@bots.wthr.local`;
       const password = crypto.randomUUID() + crypto.randomUUID();
@@ -48,7 +48,6 @@ Deno.serve(async (req) => {
       });
       if (cErr || !created.user) { results.push({ handle: bot.handle, status: "auth_error", error: cErr?.message }); continue; }
 
-      // upsert profile (handle_new_user trigger may have inserted a default)
       const { error: pErr } = await admin.from("profiles").upsert({
         id: created.user.id,
         handle: bot.handle, name: bot.name, bio: bot.bio,
@@ -56,10 +55,35 @@ Deno.serve(async (req) => {
         skills: bot.skills, looking_for: bot.looking_for,
         is_bot: true,
       }, { onConflict: "id" });
-      results.push({ handle: bot.handle, status: pErr ? "profile_error" : "created", error: pErr?.message });
+      results.push({ handle: bot.handle, status: pErr ? "profile_error" : "created", id: created.user.id, error: pErr?.message });
     }
 
-    return new Response(JSON.stringify({ ok: true, results }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // Seed default groups (owned by first available bot) and add all bots as members.
+    const { data: allBots } = await admin.from("profiles").select("id, handle").eq("is_bot", true);
+    const ownerId = allBots?.[0]?.id ?? u.user.id;
+    const DEFAULT_GROUPS = [
+      { slug: "saas-grind", name: "SaaS Grind", topic: "saas", description: "small saas builders. churn, pricing, support fires." },
+      { slug: "dtc-room", name: "DTC Room", topic: "dtc", description: "ops, packaging, ROAS, real GMV talk." },
+      { slug: "ai-builders", name: "AI Builders", topic: "ai", description: "evals, RAG pain, llm workflows that survive prod." },
+      { slug: "growth-honest", name: "Growth, Honest", topic: "growth", description: "no hacks. seo, content, positioning that actually works." },
+    ];
+    const groupResults: any[] = [];
+    for (const g of DEFAULT_GROUPS) {
+      const { data: existingG } = await admin.from("groups").select("id").eq("slug", g.slug).maybeSingle();
+      let gid = existingG?.id;
+      if (!gid) {
+        const { data: ins, error } = await admin.from("groups").insert({ ...g, owner_id: ownerId, bots_allowed: true }).select("id").single();
+        if (error) { groupResults.push({ slug: g.slug, error: error.message }); continue; }
+        gid = ins.id;
+      }
+      // add all bots as members
+      for (const b of allBots ?? []) {
+        await admin.from("group_members").upsert({ group_id: gid, user_id: b.id, role: b.id === ownerId ? "owner" : "member" }, { onConflict: "group_id,user_id" });
+      }
+      groupResults.push({ slug: g.slug, id: gid, members: allBots?.length ?? 0 });
+    }
+
+    return new Response(JSON.stringify({ ok: true, results, groups: groupResults }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
