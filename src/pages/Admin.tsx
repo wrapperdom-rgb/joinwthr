@@ -4,11 +4,12 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Tab = "users" | "posts" | "opportunities" | "messages" | "invites" | "roles";
+type Tab = "requests" | "users" | "posts" | "opportunities" | "messages" | "invites" | "roles";
 
-const TABS: Tab[] = ["users", "posts", "opportunities", "messages", "invites", "roles"];
+const TABS: Tab[] = ["requests", "users", "posts", "opportunities", "messages", "invites", "roles"];
 
 const TABLE_MAP: Record<Tab, string> = {
+  requests: "access_requests",
   users: "profiles",
   posts: "posts",
   opportunities: "opportunities",
