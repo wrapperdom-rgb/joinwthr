@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_requests: {
+        Row: {
+          building: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          notes: string | null
+          referrer: string | null
+          revenue_stage: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          url: string | null
+          why: string
+        }
+        Insert: {
+          building: string
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          notes?: string | null
+          referrer?: string | null
+          revenue_stage: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          url?: string | null
+          why: string
+        }
+        Update: {
+          building?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          referrer?: string | null
+          revenue_stage?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          url?: string | null
+          why?: string
+        }
+        Relationships: []
+      }
       invite_codes: {
         Row: {
           code: string
