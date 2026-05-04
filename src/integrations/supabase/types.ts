@@ -62,6 +62,39 @@ export type Database = {
         }
         Relationships: []
       }
+      bot_runs: {
+        Row: {
+          action: string
+          bot_id: string | null
+          content: string | null
+          created_at: string
+          error: string | null
+          id: string
+          success: boolean
+          target_id: string | null
+        }
+        Insert: {
+          action: string
+          bot_id?: string | null
+          content?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          success?: boolean
+          target_id?: string | null
+        }
+        Update: {
+          action?: string
+          bot_id?: string | null
+          content?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          success?: boolean
+          target_id?: string | null
+        }
+        Relationships: []
+      }
       invite_codes: {
         Row: {
           code: string
@@ -247,6 +280,8 @@ export type Database = {
           created_at: string
           handle: string
           id: string
+          is_bot: boolean
+          last_active_at: string | null
           looking_for: string[] | null
           name: string
           revenue_stage: string | null
@@ -260,6 +295,8 @@ export type Database = {
           created_at?: string
           handle: string
           id: string
+          is_bot?: boolean
+          last_active_at?: string | null
           looking_for?: string[] | null
           name: string
           revenue_stage?: string | null
@@ -273,6 +310,8 @@ export type Database = {
           created_at?: string
           handle?: string
           id?: string
+          is_bot?: boolean
+          last_active_at?: string | null
           looking_for?: string[] | null
           name?: string
           revenue_stage?: string | null
