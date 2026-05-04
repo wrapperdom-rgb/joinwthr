@@ -4,9 +4,9 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Tab = "requests" | "users" | "posts" | "opportunities" | "messages" | "invites" | "roles";
+type Tab = "requests" | "users" | "posts" | "opportunities" | "messages" | "invites" | "roles" | "groups" | "bots";
 
-const TABS: Tab[] = ["requests", "users", "posts", "opportunities", "messages", "invites", "roles"];
+const TABS: Tab[] = ["requests", "users", "posts", "opportunities", "messages", "invites", "roles", "groups", "bots"];
 
 const TABLE_MAP: Record<Tab, string> = {
   requests: "access_requests",
@@ -16,6 +16,8 @@ const TABLE_MAP: Record<Tab, string> = {
   messages: "messages",
   invites: "invite_codes",
   roles: "user_roles",
+  groups: "groups",
+  bots: "bot_runs",
 };
 
 export default function Admin() {
