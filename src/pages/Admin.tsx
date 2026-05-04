@@ -64,6 +64,9 @@ export default function Admin() {
     if (tab === "roles" && filter !== "all") {
       out = out.filter(r => r.role === filter);
     }
+    if (tab === "requests" && filter !== "all") {
+      out = out.filter(r => r.status === filter);
+    }
     // free-text search across all string fields
     const q = query.trim().toLowerCase();
     if (q) {
