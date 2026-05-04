@@ -21,7 +21,7 @@ const TABLE_MAP: Record<Tab, string> = {
 export default function Admin() {
   const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("users");
+  const [tab, setTab] = useState<Tab>("requests");
   const [rows, setRows] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState("");
