@@ -245,7 +245,10 @@ export default function Admin() {
         )}
       </div>
 
+      {tab === "bots" && <BotSettingsPanel />}
+
       <div className="overflow-x-auto border border-hairline">
+
         {busy ? (
           <div className="p-6 font-mono-mini text-muted-foreground">loading…</div>
         ) : filtered.length === 0 ? (
