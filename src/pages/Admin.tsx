@@ -4,9 +4,9 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Tab = "requests" | "users" | "posts" | "opportunities" | "messages" | "invites" | "roles";
+type Tab = "requests" | "users" | "posts" | "opportunities" | "messages" | "invites" | "roles" | "groups" | "bots";
 
-const TABS: Tab[] = ["requests", "users", "posts", "opportunities", "messages", "invites", "roles"];
+const TABS: Tab[] = ["requests", "users", "posts", "opportunities", "messages", "invites", "roles", "groups", "bots"];
 
 const TABLE_MAP: Record<Tab, string> = {
   requests: "access_requests",
@@ -16,6 +16,8 @@ const TABLE_MAP: Record<Tab, string> = {
   messages: "messages",
   invites: "invite_codes",
   roles: "user_roles",
+  groups: "groups",
+  bots: "bot_runs",
 };
 
 export default function Admin() {
@@ -243,7 +245,10 @@ export default function Admin() {
         )}
       </div>
 
+      {tab === "bots" && <BotSettingsPanel />}
+
       <div className="overflow-x-auto border border-hairline">
+
         {busy ? (
           <div className="p-6 font-mono-mini text-muted-foreground">loading…</div>
         ) : filtered.length === 0 ? (
@@ -312,6 +317,98 @@ export default function Admin() {
             </tbody>
           </table>
         )}
+      </div>
+    </div>
+  );
+}
+
+function BotSettingsPanel() {
+  const [s, setS] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    supabase.from("bot_settings").select("*").eq("id", 1).maybeSingle()
+      .then(({ data }) => setS(data ?? null));
+  }, []);
+
+  if (!s) return <div className="font-mono-mini text-muted-foreground border border-hairline p-6">loading bot settings…</div>;
+
+  const set = (k: string, v: any) => setS({ ...s, [k]: v });
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("bot_settings").update({
+      enabled: s.enabled,
+      weight_post: s.weight_post, weight_reply: s.weight_reply, weight_like: s.weight_like,
+      max_bots_per_tick: s.max_bots_per_tick, max_posts_per_day: s.max_posts_per_day,
+      allow_self_reply: s.allow_self_reply, self_reply_chance: s.self_reply_chance,
+      allow_group_posts: s.allow_group_posts, group_post_chance: s.group_post_chance,
+      tick_minutes: s.tick_minutes,
+    }).eq("id", 1);
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else toast.success("settings saved. cron uses live values on next tick.");
+  };
+
+  const total = (s.weight_post ?? 0) + (s.weight_reply ?? 0) + (s.weight_like ?? 0);
+
+  const Row = ({ label, k, min, max, hint }: any) => (
+    <label className="grid grid-cols-[180px_1fr_60px] gap-3 items-center">
+      <span className="font-mono-mini text-muted-foreground">{label}</span>
+      <input type="range" min={min} max={max} value={s[k] ?? 0} onChange={e => set(k, Number(e.target.value))} className="accent-foreground" />
+      <span className="font-mono-mini text-right">{s[k]}{hint ? hint : ""}</span>
+    </label>
+  );
+
+  return (
+    <div className="border border-hairline p-6 space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-display text-2xl tracking-tight">Bot controls</h3>
+          <p className="font-mono-mini text-muted-foreground text-xs mt-1">live settings the cron tick reads on every run</p>
+        </div>
+        <label className="flex items-center gap-2 font-mono-mini">
+          <input type="checkbox" checked={!!s.enabled} onChange={e => set("enabled", e.target.checked)} />
+          {s.enabled ? "enabled" : "paused"}
+        </label>
+      </div>
+
+      <div className="space-y-3">
+        <div className="font-mono-mini text-muted-foreground text-xs">action weights (relative, total {total})</div>
+        <Row label="post weight" k="weight_post" min={0} max={100} />
+        <Row label="reply weight" k="weight_reply" min={0} max={100} />
+        <Row label="like weight" k="weight_like" min={0} max={100} />
+      </div>
+
+      <div className="space-y-3 pt-3 border-t border-hairline">
+        <Row label="bots per tick" k="max_bots_per_tick" min={1} max={5} />
+        <Row label="max posts/day per bot" k="max_posts_per_day" min={1} max={50} />
+        <Row label="tick frequency" k="tick_minutes" min={5} max={360} hint=" min" />
+      </div>
+
+      <div className="space-y-3 pt-3 border-t border-hairline">
+        <label className="flex items-center gap-2 font-mono-mini">
+          <input type="checkbox" checked={!!s.allow_self_reply} onChange={e => set("allow_self_reply", e.target.checked)} />
+          allow bots to reply to their own messages
+        </label>
+        <Row label="self-reply chance" k="self_reply_chance" min={0} max={100} hint="%" />
+      </div>
+
+      <div className="space-y-3 pt-3 border-t border-hairline">
+        <label className="flex items-center gap-2 font-mono-mini">
+          <input type="checkbox" checked={!!s.allow_group_posts} onChange={e => set("allow_group_posts", e.target.checked)} />
+          allow bots to post inside groups
+        </label>
+        <Row label="group activity chance" k="group_post_chance" min={0} max={100} hint="%" />
+      </div>
+
+      <div className="flex items-center justify-between pt-3 border-t border-hairline">
+        <span className="font-mono-mini text-muted-foreground text-xs">
+          tick frequency change requires updating the cron schedule manually for now
+        </span>
+        <button onClick={save} disabled={saving} className="font-mono-mini border border-foreground px-4 py-2 hover:bg-foreground hover:text-background transition disabled:opacity-50">
+          {saving ? "saving…" : "save settings"}
+        </button>
       </div>
     </div>
   );

@@ -15,6 +15,8 @@ import Discover from "./pages/Discover";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import Groups from "./pages/Groups";
+import GroupDetail from "./pages/GroupDetail";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
               <Route path="/messages" element={<Messages />} />
               <Route path="/messages/:otherId" element={<Messages />} />
               <Route path="/u/:handle" element={<Profile />} />
+              <Route path="/groups" element={<Groups />} />
+              <Route path="/groups/:slug" element={<GroupDetail />} />
               <Route path="/admin" element={<Admin />} />
             </Route>
             <Route path="*" element={<NotFound />} />
