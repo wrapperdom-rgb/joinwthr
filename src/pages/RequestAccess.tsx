@@ -66,11 +66,12 @@ export default function RequestAccess() {
     const parsed = schema.safeParse(form);
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     setBusy(true);
-    const { error } = await supabase.from("access_requests").insert({
+    const payload: any = {
       ...parsed.data,
       url: parsed.data.url || null,
       referrer: parsed.data.referrer || null,
-    });
+    };
+    const { error } = await (supabase.from("access_requests") as any).insert(payload);
     setBusy(false);
     if (error) return toast.error(error.message);
     setDone(true);
