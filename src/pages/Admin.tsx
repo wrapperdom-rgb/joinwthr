@@ -126,11 +126,40 @@ export default function Admin() {
     load();
   };
 
+  const approveRequest = async (req: any) => {
+    const code = prompt("Invite code to issue:", `WTHR-${Math.random().toString(36).slice(2, 6).toUpperCase()}`);
+    if (!code) return;
+    const { error: e1 } = await (supabase.from("invite_codes") as any).insert({ code, created_by: user!.id });
+    if (e1) return toast.error(e1.message);
+    const { error: e2 } = await (supabase.from("access_requests") as any)
+      .update({ status: "approved", notes: `invite: ${code}`, reviewed_at: new Date().toISOString(), reviewed_by: user!.id })
+      .eq("id", req.id);
+    if (e2) return toast.error(e2.message);
+    toast.success(`Approved. Send "${code}" to ${req.email}`);
+    load();
+  };
+
+  const rejectRequest = async (req: any) => {
+    if (!confirm(`Reject request from ${req.email}?`)) return;
+    const { error } = await (supabase.from("access_requests") as any)
+      .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: user!.id })
+      .eq("id", req.id);
+    if (error) return toast.error(error.message);
+    toast.success("Rejected");
+    load();
+  };
+
   if (loading || !isAdmin) {
     return <div className="text-muted-foreground font-mono-mini">checking access…</div>;
   }
 
   const filterOptions: { value: string; label: string }[] = (() => {
+    if (tab === "requests") return [
+      { value: "all", label: "all" },
+      { value: "pending", label: "pending" },
+      { value: "approved", label: "approved" },
+      { value: "rejected", label: "rejected" },
+    ];
     if (tab === "users") return [{ value: "all", label: "all" }, { value: "active", label: "active" }, { value: "banned", label: "banned" }];
     if (tab === "opportunities") {
       const kinds = Array.from(new Set(rows.map(r => r.kind).filter(Boolean)));
