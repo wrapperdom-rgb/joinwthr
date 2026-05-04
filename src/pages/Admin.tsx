@@ -187,7 +187,26 @@ export default function Admin() {
           <h1 className="font-display text-5xl tracking-tighter">Admin</h1>
           <p className="font-script text-muted-foreground mt-1">control room</p>
         </div>
-        <span className="font-mono-mini text-muted-foreground hidden md:inline">your id: {user?.id}</span>
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={async () => {
+              setBusy(true);
+              const { data, error } = await supabase.functions.invoke("seed-bots");
+              setBusy(false);
+              if (error) toast.error(error.message);
+              else toast.success(`bots: ${(data?.results ?? []).map((r: any) => `${r.handle}:${r.status}`).join(", ")}`);
+            }}
+            className="font-mono-mini border border-hairline px-3 py-2 hover:border-foreground transition"
+          >seed bots</button>
+          <button
+            onClick={async () => {
+              const { data, error } = await supabase.functions.invoke("bot-tick");
+              if (error) toast.error(error.message);
+              else toast.success(`tick: ${(data?.log ?? []).length} actions`);
+            }}
+            className="font-mono-mini border border-hairline px-3 py-2 hover:border-foreground transition"
+          >run bot tick</button>
+        </div>
       </header>
 
       <nav className="flex flex-wrap gap-1 border-b border-hairline">
