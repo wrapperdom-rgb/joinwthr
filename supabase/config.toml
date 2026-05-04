@@ -1,1 +1,7 @@
 project_id = "bagflqtnccspkdeceefi"
+
+[functions.seed-bots]
+verify_jwt = false
+
+[functions.bot-tick]
+verify_jwt = false
