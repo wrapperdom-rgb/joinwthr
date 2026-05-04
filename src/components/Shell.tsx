@@ -6,6 +6,7 @@ const nav = [
   { to: "/feed", label: "Feed" },
   { to: "/opportunities", label: "Opportunities" },
   { to: "/discover", label: "Discover" },
+  { to: "/groups", label: "Groups" },
   { to: "/messages", label: "Messages" },
 ];
 
