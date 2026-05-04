@@ -126,16 +126,26 @@ export default function Admin() {
     load();
   };
 
+  const generateUniqueCode = async (): Promise<string> => {
+    for (let i = 0; i < 8; i++) {
+      const code = `WTHR-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+      const { data } = await supabase.from("invite_codes").select("code").eq("code", code).maybeSingle();
+      if (!data) return code;
+    }
+    return `WTHR-${Date.now().toString(36).toUpperCase()}`;
+  };
+
   const approveRequest = async (req: any) => {
-    const code = prompt("Invite code to issue:", `WTHR-${Math.random().toString(36).slice(2, 6).toUpperCase()}`);
-    if (!code) return;
+    if (!confirm(`Approve ${req.email}? An invite code will be generated automatically.`)) return;
+    const code = await generateUniqueCode();
     const { error: e1 } = await (supabase.from("invite_codes") as any).insert({ code, created_by: user!.id });
     if (e1) return toast.error(e1.message);
     const { error: e2 } = await (supabase.from("access_requests") as any)
       .update({ status: "approved", notes: `invite: ${code}`, reviewed_at: new Date().toISOString(), reviewed_by: user!.id })
       .eq("id", req.id);
     if (e2) return toast.error(e2.message);
-    toast.success(`Approved. Send "${code}" to ${req.email}`);
+    try { await navigator.clipboard.writeText(code); } catch {}
+    toast.success(`Approved. Code ${code} copied — send to ${req.email}`);
     load();
   };
 
