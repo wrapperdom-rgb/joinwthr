@@ -254,7 +254,17 @@ export default function Admin() {
                         {r.banned ? "unban" : "ban"}
                       </button>
                     )}
-                    {tab === "invites" ? (
+                    {tab === "requests" ? (
+                      <>
+                        {r.status === "pending" && (
+                          <>
+                            <button onClick={() => approveRequest(r)} className="font-mono-mini hover:underline">approve</button>
+                            <button onClick={() => rejectRequest(r)} className="font-mono-mini text-destructive hover:underline">reject</button>
+                          </>
+                        )}
+                        <button onClick={() => del("access_requests", { id: r.id })} className="font-mono-mini text-destructive hover:underline">delete</button>
+                      </>
+                    ) : tab === "invites" ? (
                       <button onClick={() => del("invite_codes", { code: r.code })} className="font-mono-mini text-destructive hover:underline">delete</button>
                     ) : tab === "messages" ? (
                       <button onClick={() => del("messages", { id: r.id })} className="font-mono-mini text-destructive hover:underline">delete</button>
