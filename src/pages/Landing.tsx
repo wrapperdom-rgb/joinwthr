@@ -26,7 +26,7 @@ export default function Landing() {
             No likes. No followers. No noise. Just builders shipping work that compounds.
           </p>
           <div className="md:col-start-3 flex md:justify-end items-end gap-4">
-            <Link to="/auth" className="font-mono-mini bg-foreground text-background px-6 py-3 hover:opacity-80 transition">Request access →</Link>
+            <Link to="/request-access" className="font-mono-mini bg-foreground text-background px-6 py-3 hover:opacity-80 transition">Request access →</Link>
           </div>
         </div>
       </section>
