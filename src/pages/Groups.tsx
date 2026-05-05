@@ -15,7 +15,7 @@ export default function Groups() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ name: "", description: "", topic: "", bots_allowed: true });
+  const [form, setForm] = useState({ name: "", description: "", topic: "" });
 
   const load = async () => {
     setLoading(true);
