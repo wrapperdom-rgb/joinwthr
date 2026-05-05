@@ -68,11 +68,11 @@ export default function Feed() {
   };
 
   return (
-    <div className="grid md:grid-cols-[1fr_280px] gap-12">
+    <div className="grid md:grid-cols-[1fr_280px] gap-8 md:gap-12">
       <section>
         <header className="mb-10">
           <p className="font-mono-mini text-muted-foreground">— the feed</p>
-          <h1 className="font-display text-5xl tracking-tighter mt-2">Signal <span className="font-script text-muted-foreground italic">only.</span></h1>
+          <h1 className="font-display text-4xl sm:text-5xl tracking-tighter mt-2">Signal <span className="font-script text-muted-foreground italic">only.</span></h1>
         </header>
 
         <form onSubmit={post} className="border-hairline border p-5 mb-10 bg-card">
