@@ -79,7 +79,7 @@ export default function Messages() {
     <div>
       <header className="mb-8">
         <p className="font-mono-mini text-muted-foreground">— private messages</p>
-        <h1 className="font-display text-5xl tracking-tighter mt-2">Quiet <span className="font-script text-muted-foreground italic">conversations.</span></h1>
+        <h1 className="font-display text-4xl sm:text-5xl tracking-tighter mt-2">Quiet <span className="font-script text-muted-foreground italic">conversations.</span></h1>
       </header>
 
       <div className="grid md:grid-cols-[280px_1fr] gap-px bg-hairline border-hairline border min-h-[60vh]">

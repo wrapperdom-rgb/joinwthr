@@ -184,12 +184,12 @@ export default function Admin() {
 
   return (
     <div className="space-y-8">
-      <header className="flex items-baseline justify-between border-b border-hairline pb-6">
+      <header className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 border-b border-hairline pb-6">
         <div>
-          <h1 className="font-display text-5xl tracking-tighter">Admin</h1>
+          <h1 className="font-display text-4xl sm:text-5xl tracking-tighter">Admin</h1>
           <p className="font-script text-muted-foreground mt-1">control room</p>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <button
             onClick={async () => {
               setBusy(true);
