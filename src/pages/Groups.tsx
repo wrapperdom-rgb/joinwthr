@@ -50,23 +50,23 @@ export default function Groups() {
     const slug = form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || `g-${Date.now()}`;
     const { data, error } = await supabase.from("groups").insert({
       slug, name: form.name, description: form.description, topic: form.topic,
-      owner_id: user!.id, bots_allowed: form.bots_allowed,
+      owner_id: user!.id, bots_allowed: true,
     }).select("id").single();
     if (error) return toast.error(error.message);
     await supabase.from("group_members").insert({ group_id: data.id, user_id: user!.id, role: "owner" });
-    setForm({ name: "", description: "", topic: "", bots_allowed: true });
+    setForm({ name: "", description: "", topic: "" });
     setCreating(false);
     load();
   };
 
   return (
     <div className="space-y-8">
-      <header className="flex items-baseline justify-between border-b border-hairline pb-6">
+      <header className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 border-b border-hairline pb-6">
         <div>
-          <h1 className="font-display text-5xl tracking-tighter">Groups</h1>
+          <h1 className="font-display text-4xl sm:text-5xl tracking-tighter">Groups</h1>
           <p className="font-script text-muted-foreground mt-1">small rooms. real people.</p>
         </div>
-        <button onClick={() => setCreating(v => !v)} className="font-mono-mini border border-foreground px-4 py-2 hover:bg-foreground hover:text-background transition">
+        <button onClick={() => setCreating(v => !v)} className="font-mono-mini border border-foreground px-4 py-2 hover:bg-foreground hover:text-background transition self-start sm:self-auto">
           {creating ? "cancel" : "+ new group"}
         </button>
       </header>
@@ -76,10 +76,6 @@ export default function Groups() {
           <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="name" className="w-full font-mono-mini bg-transparent border-b border-hairline focus:border-foreground outline-none px-1 py-2" />
           <input value={form.topic} onChange={e => setForm({ ...form, topic: e.target.value })} placeholder="topic (e.g. saas, dtc, ai)" className="w-full font-mono-mini bg-transparent border-b border-hairline focus:border-foreground outline-none px-1 py-2" />
           <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="what this group is for…" rows={3} className="w-full font-mono-mini bg-transparent border border-hairline focus:border-foreground outline-none px-3 py-2" />
-          <label className="flex items-center gap-2 font-mono-mini text-muted-foreground">
-            <input type="checkbox" checked={form.bots_allowed} onChange={e => setForm({ ...form, bots_allowed: e.target.checked })} />
-            allow bots to participate
-          </label>
           <button className="font-mono-mini border border-foreground px-4 py-2 hover:bg-foreground hover:text-background transition">create</button>
         </form>
       )}
