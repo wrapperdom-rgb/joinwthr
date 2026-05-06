@@ -15,8 +15,13 @@ export default function Shell() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) navigate("/auth", { replace: true });
-  }, [loading, user, navigate]);
+    if (loading) return;
+    if (!user) { navigate("/auth", { replace: true }); return; }
+    // Hard paywall: admins and bots bypass
+    if (profile && !profile.paid && !isAdmin && !profile.is_bot) {
+      navigate("/paywall", { replace: true });
+    }
+  }, [loading, user, profile, isAdmin, navigate]);
 
   if (loading || !user) {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground font-mono-mini">loading…</div>;
