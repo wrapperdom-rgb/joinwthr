@@ -387,6 +387,45 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          id: string
+          provider: string
+          provider_event_id: string | null
+          provider_payment_id: string | null
+          raw: Json | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          provider?: string
+          provider_event_id?: string | null
+          provider_payment_id?: string | null
+          raw?: Json | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          provider?: string
+          provider_event_id?: string | null
+          provider_payment_id?: string | null
+          raw?: Json | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       post_likes: {
         Row: {
           created_at: string
@@ -487,6 +526,8 @@ export type Database = {
           last_active_at: string | null
           looking_for: string[] | null
           name: string
+          paid: boolean
+          paid_at: string | null
           revenue_stage: string | null
           skills: string[] | null
         }
@@ -502,6 +543,8 @@ export type Database = {
           last_active_at?: string | null
           looking_for?: string[] | null
           name: string
+          paid?: boolean
+          paid_at?: string | null
           revenue_stage?: string | null
           skills?: string[] | null
         }
@@ -517,6 +560,8 @@ export type Database = {
           last_active_at?: string | null
           looking_for?: string[] | null
           name?: string
+          paid?: boolean
+          paid_at?: string | null
           revenue_stage?: string | null
           skills?: string[] | null
         }
