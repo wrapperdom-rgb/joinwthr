@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
@@ -12,6 +12,8 @@ type Profile = {
   skills: string[] | null;
   looking_for: string[] | null;
   avatar_url: string | null;
+  paid: boolean;
+  is_bot: boolean;
 };
 
 type AuthCtx = {
@@ -32,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const lastUid = useRef<string | null>(null);
 
   const loadProfile = async (uid: string) => {
     const { data } = await supabase.from("profiles").select("*").eq("id", uid).maybeSingle();
@@ -44,9 +47,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((_evt, sess) => {
       setSession(sess);
       setUser(sess?.user ?? null);
-      if (sess?.user) {
-        setTimeout(() => loadProfile(sess.user.id), 0);
-      } else {
+      const uid = sess?.user?.id ?? null;
+      // Only reload profile when the user actually changes (avoid wiping state on TOKEN_REFRESHED)
+      if (uid && uid !== lastUid.current) {
+        lastUid.current = uid;
+        setTimeout(() => loadProfile(uid), 0);
+      } else if (!uid) {
+        lastUid.current = null;
         setProfile(null);
         setIsAdmin(false);
       }
@@ -54,8 +61,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session: sess } }) => {
       setSession(sess);
       setUser(sess?.user ?? null);
-      if (sess?.user) loadProfile(sess.user.id);
-      setLoading(false);
+      if (sess?.user) {
+        lastUid.current = sess.user.id;
+        loadProfile(sess.user.id).finally(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
     });
     return () => sub.subscription.unsubscribe();
   }, []);

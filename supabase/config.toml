@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.bot-tick]
 verify_jwt = false
+
+[functions.dodo-webhook]
+verify_jwt = false
+
+[functions.dodo-create-checkout]
+verify_jwt = false
