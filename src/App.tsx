@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
+import Paywall from "./pages/Paywall";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/request-access" element={<RequestAccess />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/paywall" element={<Paywall />} />
             <Route element={<Shell />}>
               <Route path="/feed" element={<Feed />} />
               <Route path="/opportunities" element={<Opportunities />} />
