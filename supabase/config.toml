@@ -1,7 +1,7 @@
 project_id = "bagflqtnccspkdeceefi"
 
-[functions.seed-bots]
+[functions.dodo-webhook]
 verify_jwt = false
 
-[functions.bot-tick]
+[functions.dodo-create-checkout]
 verify_jwt = false
