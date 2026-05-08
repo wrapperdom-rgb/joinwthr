@@ -16,11 +16,15 @@ export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     const { data: rows } = await supabase
       .from("posts")
-      .select("id, content, created_at, author_id, profiles!posts_author_profile_fk(handle, name)")
+      .select("id, content, created_at, author_id, image_url, profiles!posts_author_profile_fk(handle, name)")
       .order("created_at", { ascending: false })
       .limit(50);
     if (!rows) return;
