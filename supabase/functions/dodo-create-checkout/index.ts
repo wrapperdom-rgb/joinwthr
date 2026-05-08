@@ -24,8 +24,8 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
     const email = userData.user.email;
 
-    const apiKey = Deno.env.get('DODO_API_KEY')!;
-    const productId = Deno.env.get('DODO_PRODUCT_ID')!;
+    const apiKey = Deno.env.get('DODO_API_KEY')!.trim();
+    const productId = Deno.env.get('DODO_PRODUCT_ID')!.trim();
 
     const origin = req.headers.get('origin') || 'https://wthrsociety.site';
     const returnUrl = `https://wthrsociety.site/feed?paid=1`;
