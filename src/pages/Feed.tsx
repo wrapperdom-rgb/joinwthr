@@ -140,7 +140,12 @@ export default function Feed() {
                 </Link>
                 <span className="font-mono-mini text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</span>
               </div>
-              <p className="text-lg leading-relaxed whitespace-pre-wrap">{p.content}</p>
+              {p.content && <p className="text-lg leading-relaxed whitespace-pre-wrap">{p.content}</p>}
+              {p.image_url && (
+                <a href={p.image_url} target="_blank" rel="noreferrer" className="block mt-3">
+                  <img src={p.image_url} alt="post" loading="lazy" className="max-h-[480px] w-auto rounded border border-hairline" />
+                </a>
+              )}
               <div className="mt-3 flex gap-6">
                 <button onClick={() => toggleLike(p)} className={`font-mono-mini ${p.liked_by_me ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   {p.liked_by_me ? "★" : "☆"} {p.likes}
