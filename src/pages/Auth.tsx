@@ -112,9 +112,6 @@ export default function AuthPage() {
               {loading ? "…" : mode === "signin" ? "Enter →" : "Create account →"}
             </button>
 
-            {mode === "signup" && (
-              <p className="font-mono-mini text-muted-foreground text-center pt-2">Try: WTHR-FOUNDER</p>
-            )}
           </form>
         </div>
       </div>
