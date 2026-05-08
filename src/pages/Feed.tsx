@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Link } from "react-router-dom";
@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 type Post = {
   id: string; content: string; created_at: string; author_id: string;
+  image_url: string | null;
   profiles: { handle: string; name: string } | null;
   likes: number; reply_count: number; liked_by_me: boolean;
 };
