@@ -109,9 +109,22 @@ export default function Feed() {
             placeholder="A win. An insight. An opportunity. Be brief."
             className="w-full bg-transparent outline-none resize-none text-lg"
           />
-          <div className="flex justify-between items-center pt-2 border-t border-hairline">
-            <span className="font-mono-mini text-muted-foreground">{content.length}/600</span>
-            <button disabled={loading || !content.trim()} className="bg-foreground text-background font-mono-mini px-4 py-2 disabled:opacity-30">Post →</button>
+          {imagePreview && (
+            <div className="relative mt-2 inline-block">
+              <img src={imagePreview} alt="preview" className="max-h-64 rounded border border-hairline" />
+              <button type="button" onClick={() => { onPickImage(null); if (fileRef.current) fileRef.current.value = ""; }}
+                className="absolute top-1 right-1 bg-foreground text-background font-mono-mini text-xs px-2 py-0.5">×</button>
+            </div>
+          )}
+          <div className="flex justify-between items-center pt-2 border-t border-hairline mt-2">
+            <div className="flex items-center gap-3">
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => onPickImage(e.target.files?.[0] || null)} />
+              <button type="button" onClick={() => fileRef.current?.click()} className="font-mono-mini text-muted-foreground hover:text-foreground">＋ image</button>
+              <span className="font-mono-mini text-muted-foreground">{content.length}/600</span>
+            </div>
+            <button disabled={loading || uploading || (!content.trim() && !imageFile)} className="bg-foreground text-background font-mono-mini px-4 py-2 disabled:opacity-30">
+              {uploading ? "Uploading…" : loading ? "Posting…" : "Post →"}
+            </button>
           </div>
         </form>
 
