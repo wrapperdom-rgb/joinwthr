@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     };
 
     // Try test first (most product IDs in dev are test mode), then live
-    const hosts = ['https://test.dodopayments.com', 'https://live.dodopayments.com'];
+    const hosts = ['https://live.dodopayments.com', 'https://test.dodopayments.com'];
     let checkout: any = null;
     const errs: string[] = [];
     for (const host of hosts) {
