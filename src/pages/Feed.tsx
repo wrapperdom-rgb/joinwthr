@@ -51,15 +51,38 @@ export default function Feed() {
 
   useEffect(() => { load(); }, [user?.id]);
 
+  const onPickImage = (f: File | null) => {
+    if (!f) { setImageFile(null); setImagePreview(null); return; }
+    if (f.size > 5 * 1024 * 1024) return toast.error("Image must be under 5MB");
+    if (!f.type.startsWith("image/")) return toast.error("Only images allowed");
+    setImageFile(f);
+    setImagePreview(URL.createObjectURL(f));
+  };
+
   const post = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !content.trim()) return;
+    if (!user || (!content.trim() && !imageFile)) return;
     setLoading(true);
-    const { error } = await supabase.from("posts").insert({ author_id: user.id, content: content.trim().slice(0, 600) });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    setContent("");
-    load();
+    let image_url: string | null = null;
+    try {
+      if (imageFile) {
+        setUploading(true);
+        const ext = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("post-images").upload(path, imageFile, { contentType: imageFile.type });
+        if (upErr) throw upErr;
+        image_url = supabase.storage.from("post-images").getPublicUrl(path).data.publicUrl;
+        setUploading(false);
+      }
+      const { error } = await supabase.from("posts").insert({ author_id: user.id, content: content.trim().slice(0, 600), image_url });
+      if (error) throw error;
+      setContent(""); onPickImage(null); if (fileRef.current) fileRef.current.value = "";
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to post");
+    } finally {
+      setLoading(false); setUploading(false);
+    }
   };
 
   const toggleLike = async (p: Post) => {
