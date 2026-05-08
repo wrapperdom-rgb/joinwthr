@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Link } from "react-router-dom";
@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 type Post = {
   id: string; content: string; created_at: string; author_id: string;
+  image_url: string | null;
   profiles: { handle: string; name: string } | null;
   likes: number; reply_count: number; liked_by_me: boolean;
 };
@@ -15,11 +16,15 @@ export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     const { data: rows } = await supabase
       .from("posts")
-      .select("id, content, created_at, author_id, profiles!posts_author_profile_fk(handle, name)")
+      .select("id, content, created_at, author_id, image_url, profiles!posts_author_profile_fk(handle, name)")
       .order("created_at", { ascending: false })
       .limit(50);
     if (!rows) return;
@@ -46,15 +51,38 @@ export default function Feed() {
 
   useEffect(() => { load(); }, [user?.id]);
 
+  const onPickImage = (f: File | null) => {
+    if (!f) { setImageFile(null); setImagePreview(null); return; }
+    if (f.size > 5 * 1024 * 1024) return toast.error("Image must be under 5MB");
+    if (!f.type.startsWith("image/")) return toast.error("Only images allowed");
+    setImageFile(f);
+    setImagePreview(URL.createObjectURL(f));
+  };
+
   const post = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !content.trim()) return;
+    if (!user || (!content.trim() && !imageFile)) return;
     setLoading(true);
-    const { error } = await supabase.from("posts").insert({ author_id: user.id, content: content.trim().slice(0, 600) });
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    setContent("");
-    load();
+    let image_url: string | null = null;
+    try {
+      if (imageFile) {
+        setUploading(true);
+        const ext = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("post-images").upload(path, imageFile, { contentType: imageFile.type });
+        if (upErr) throw upErr;
+        image_url = supabase.storage.from("post-images").getPublicUrl(path).data.publicUrl;
+        setUploading(false);
+      }
+      const { error } = await supabase.from("posts").insert({ author_id: user.id, content: content.trim().slice(0, 600), image_url });
+      if (error) throw error;
+      setContent(""); onPickImage(null); if (fileRef.current) fileRef.current.value = "";
+      load();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to post");
+    } finally {
+      setLoading(false); setUploading(false);
+    }
   };
 
   const toggleLike = async (p: Post) => {
@@ -81,9 +109,22 @@ export default function Feed() {
             placeholder="A win. An insight. An opportunity. Be brief."
             className="w-full bg-transparent outline-none resize-none text-lg"
           />
-          <div className="flex justify-between items-center pt-2 border-t border-hairline">
-            <span className="font-mono-mini text-muted-foreground">{content.length}/600</span>
-            <button disabled={loading || !content.trim()} className="bg-foreground text-background font-mono-mini px-4 py-2 disabled:opacity-30">Post →</button>
+          {imagePreview && (
+            <div className="relative mt-2 inline-block">
+              <img src={imagePreview} alt="preview" className="max-h-64 rounded border border-hairline" />
+              <button type="button" onClick={() => { onPickImage(null); if (fileRef.current) fileRef.current.value = ""; }}
+                className="absolute top-1 right-1 bg-foreground text-background font-mono-mini text-xs px-2 py-0.5">×</button>
+            </div>
+          )}
+          <div className="flex justify-between items-center pt-2 border-t border-hairline mt-2">
+            <div className="flex items-center gap-3">
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => onPickImage(e.target.files?.[0] || null)} />
+              <button type="button" onClick={() => fileRef.current?.click()} className="font-mono-mini text-muted-foreground hover:text-foreground">＋ image</button>
+              <span className="font-mono-mini text-muted-foreground">{content.length}/600</span>
+            </div>
+            <button disabled={loading || uploading || (!content.trim() && !imageFile)} className="bg-foreground text-background font-mono-mini px-4 py-2 disabled:opacity-30">
+              {uploading ? "Uploading…" : loading ? "Posting…" : "Post →"}
+            </button>
           </div>
         </form>
 
@@ -99,7 +140,12 @@ export default function Feed() {
                 </Link>
                 <span className="font-mono-mini text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</span>
               </div>
-              <p className="text-lg leading-relaxed whitespace-pre-wrap">{p.content}</p>
+              {p.content && <p className="text-lg leading-relaxed whitespace-pre-wrap">{p.content}</p>}
+              {p.image_url && (
+                <a href={p.image_url} target="_blank" rel="noreferrer" className="block mt-3">
+                  <img src={p.image_url} alt="post" loading="lazy" className="max-h-[480px] w-auto rounded border border-hairline" />
+                </a>
+              )}
               <div className="mt-3 flex gap-6">
                 <button onClick={() => toggleLike(p)} className={`font-mono-mini ${p.liked_by_me ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   {p.liked_by_me ? "★" : "☆"} {p.likes}

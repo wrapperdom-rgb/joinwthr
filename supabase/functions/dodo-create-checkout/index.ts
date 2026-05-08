@@ -24,8 +24,8 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
     const email = userData.user.email;
 
-    const apiKey = Deno.env.get('DODO_API_KEY')!;
-    const productId = Deno.env.get('DODO_PRODUCT_ID')!;
+    const apiKey = Deno.env.get('DODO_API_KEY')!.trim();
+    const productId = Deno.env.get('DODO_PRODUCT_ID')!.trim();
 
     const origin = req.headers.get('origin') || 'https://wthrsociety.site';
     const returnUrl = `https://wthrsociety.site/feed?paid=1`;
@@ -40,10 +40,10 @@ Deno.serve(async (req) => {
       billing: { city: "NA", country: "US", state: "NA", street: "NA", zipcode: "00000" },
     };
 
-    // Try live host first, fallback to test
+    // Try test first (most product IDs in dev are test mode), then live
     const hosts = ['https://live.dodopayments.com', 'https://test.dodopayments.com'];
     let checkout: any = null;
-    let lastErr = '';
+    const errs: string[] = [];
     for (const host of hosts) {
       const r = await fetch(`${host}/payments`, {
         method: 'POST',
@@ -51,10 +51,11 @@ Deno.serve(async (req) => {
         body: JSON.stringify(body),
       });
       const txt = await r.text();
+      console.log(`dodo ${host} -> ${r.status}: ${txt.slice(0, 300)}`);
       if (r.ok) { checkout = JSON.parse(txt); break; }
-      lastErr = `${host}: ${r.status} ${txt}`;
+      errs.push(`${host}: ${r.status} ${txt.slice(0, 200)}`);
     }
-    if (!checkout) throw new Error(lastErr);
+    if (!checkout) throw new Error(errs.join(' | '));
 
     const url = checkout.payment_link || checkout.url || checkout.checkout_url;
     return new Response(JSON.stringify({ url, payment_id: checkout.payment_id }), {
