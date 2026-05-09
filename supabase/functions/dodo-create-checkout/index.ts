@@ -27,8 +27,8 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get('DODO_API_KEY')!.trim();
     const productId = Deno.env.get('DODO_PRODUCT_ID')!.trim();
 
-    const origin = req.headers.get('origin') || 'https://joinwthr.site';
-    const returnUrl = `https://joinwthr.site/feed?paid=1`;
+    const origin = req.headers.get('origin') || 'https://joinwthr.com';
+    const returnUrl = `https://joinwthr.com/feed?paid=1`;
 
     // Dodo Payments checkout session API
     const body = {
